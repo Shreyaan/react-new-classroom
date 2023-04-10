@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 const Room = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [data, setData] = useState<string | null>(null);
+  const [data, setData] = useState<any>(null);
   const router = useRouter();
   const { roomId } = router.query;
 
