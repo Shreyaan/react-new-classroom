@@ -11,7 +11,7 @@ const Home = () => {
   const [details, setDetails] = useLocalStorage('details', {name: '', room: '', isAdmin: false});
 
   const handleCreateRoom = () => {
-    const socket = io('http://localhost:3001');
+    const socket = io('https://reactnewclassroom.onrender.com');
     socket.emit('createRoom', roomId);
     socket.on('roomCreated', (roomId) => {
       setDetails({name: 'Admin', room: roomId, isAdmin: true});

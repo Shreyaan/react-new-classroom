@@ -123,7 +123,7 @@ const Room = () => {
 
   // first useEffect hook for initializing socket connection
   useEffect(() => {
-    const newSocket = io("http://localhost:3001");
+    const newSocket = io("https://reactnewclassroom.onrender.com");
     setSocket(newSocket);
 
     newSocket.emit("joinRoom", roomId);
