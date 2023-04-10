@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, SetStateAction } from "react";
 import Head from "next/head";
 import io, { Socket } from "socket.io-client";
 import { useRouter } from "next/router";
-import { useLocalStorage } from "usehooks-ts";
-import { useIsClient } from 'usehooks-ts'
+import Editor from "@monaco-editor/react";
+import { useLocalStorage, useEffectOnce, useIsClient } from "usehooks-ts";
 
 const Room = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -16,9 +16,110 @@ const Room = () => {
     room: "",
     isAdmin: false,
   });
-  const isClient = useIsClient()
+  const isClient = useIsClient();
 
-  
+  const [html, setHtml] = useLocalStorage("html", "<h1>Hello World</h1>");
+  const [css, setCss] = useLocalStorage(
+    "css",
+    `h1{
+      color: red;
+    }`
+  );
+  const [js, setJs] = useLocalStorage("js", "//alert('Hello World')");
+  //editor code
+
+  const [language, setLanguage] = useState("html");
+
+  const [code, setCode] = useState(`<!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+      <style>
+          ${css}
+      </style>
+  </head>
+  <body>
+      ${html}
+      <script>
+          ${js}
+      </script>
+  </body>
+  </html>`);
+
+  const outputRef = useRef(null) as unknown as { current: HTMLIFrameElement };
+
+  function handleEditorChange(
+    value: SetStateAction<string | undefined>,
+    event: any
+  ) {
+    if (typeof value === "string") {
+      if (language === "html") {
+        setHtml(value);
+      }
+      if (language === "css") {
+        setCss(value);
+      }
+      if (language === "js") {
+        setJs(value);
+      }
+    }
+  }
+
+  const handleRunCode = () => {
+    const iframe = outputRef.current;
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    console.log(iframeDoc);
+
+    iframeDoc?.open();
+    iframeDoc?.write(code);
+    iframeDoc?.close();
+  };
+
+  useEffect(() => {
+    setCode(
+      `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <style>
+            ${css}
+        </style>
+    </head>
+    <body>
+        ${html}
+        <script>
+            ${js}
+        </script>
+    </body>
+    </html>`
+    );
+  }, [html, css, js, setCode]);
+
+  useEffectOnce(() => {
+    //sleep for 1 second
+    setTimeout(() => {
+      handleRunCode();
+    }, 500);
+  });
+
+  const handleKeyDown = (event: {
+    preventDefault: () => void;
+    which: number;
+    ctrlKey: any;
+    metaKey: any;
+  }) => {
+    const charCode = String.fromCharCode(event.which).toLowerCase();
+    if ((event.ctrlKey || event.metaKey) && charCode === "s") {
+      event.preventDefault();
+      handleRunCode();
+    }
+  };
 
   // first useEffect hook for initializing socket connection
   useEffect(() => {
@@ -40,7 +141,20 @@ const Room = () => {
     });
 
     newSocket.on("dataReceived", (data) => {
-      setData(data);
+      if (data?.html) {
+        setHtml(data.html);
+        console.log(data.html);
+      }
+      if (data?.css) setCss(data.css);
+      if (data?.js) {
+        setJs(data.js);
+        console.log(data.js);
+      }
+      setTimeout(() => {
+        handleRunCode();
+      }, 500);
+      //refresh the page
+        window.location.reload();
       console.log("Data received: ", data);
     });
 
@@ -75,11 +189,15 @@ const Room = () => {
     var dateTime = date + " " + time;
 
     if (socket) {
-      socket.emit("sendData", roomId, {
+      let sendData = {
         message: "Hello, world!",
-        time: dateTime,
-      });
-      setData({ message: "Hello, world!", time: dateTime });
+        html: html,
+        css,
+        js,
+        dcsc: "dsc",
+      };
+      socket.emit("sendData", roomId, sendData);
+      setData(sendData);
     }
   };
 
@@ -92,11 +210,11 @@ const Room = () => {
       {errorMessage && (
         <div className="mb-6 bg-red-100 p-4 text-red-900">{errorMessage}</div>
       )}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         {isClient && details.isAdmin && (
           <button
             type="button"
-            className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+          className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
             onClick={handleSendData}
           >
             Send Data
@@ -106,9 +224,89 @@ const Room = () => {
       <div>
         {data && (
           <div className="mb-6 bg-gray-100 p-4">
-            <p>{data.message} at {data.time}</p>
+            <p>
+              {data.message} at {data.time}
+            </p>
           </div>
         )}
+      </div> */}
+      <div className="flex flex-col gap-4">
+        <div className="h-90">
+          <div className="tabs tabs-boxed">
+            <a
+              className={`tab ${language === "html" ? "tab-active" : ""}`}
+              onClick={() => {
+                setLanguage("html");
+              }}
+            >
+              html
+            </a>
+            <a
+              className={`tab ${language === "css" ? "tab-active" : ""}`}
+              onClick={() => {
+                setLanguage("css");
+              }}
+            >
+              css
+            </a>
+            <a
+              className={`tab ${language === "js" ? "tab-active" : ""}`}
+              onClick={() => {
+                setLanguage("js");
+              }}
+            >
+              js
+            </a>
+          </div>
+          <div className="" onKeyDown={handleKeyDown}>
+            {language === "html" && (
+              <Editor
+                height="50vh"
+                defaultLanguage="html"
+                onChange={handleEditorChange}
+                value={html}
+              />
+            )}
+            {language === "css" && (
+              <Editor
+                height="50vh"
+                defaultLanguage="css"
+                onChange={handleEditorChange}
+                value={css}
+              />
+            )}
+            {language === "js" && (
+              <Editor
+                height="50vh"
+                defaultLanguage="javascript"
+                onChange={handleEditorChange}
+                value={js}
+              />
+            )}
+          </div>
+        </div>
+        <div className="flex gap-5">
+          <button
+            className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
+            onClick={handleRunCode}
+          >
+            Run Code
+          </button>
+          {isClient && details.isAdmin && (
+            <button
+              type="button"
+              className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
+              onClick={() => {
+                handleRunCode();
+
+                handleSendData();
+              }}
+            >
+              Send Code
+            </button>
+          )}
+        </div>
+        <iframe className="h-80" title="output" ref={outputRef} />
       </div>
     </>
   );
