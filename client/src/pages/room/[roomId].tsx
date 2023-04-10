@@ -154,7 +154,7 @@ const Room = () => {
         handleRunCode();
       }, 500);
       //refresh the page
-        window.location.reload();
+      window.location.reload();
       console.log("Data received: ", data);
     });
 
@@ -198,6 +198,26 @@ const Room = () => {
       };
       socket.emit("sendData", roomId, sendData);
       setData(sendData);
+    }
+  };
+
+  //download
+
+  const downloadRef = useRef<HTMLAnchorElement>(null);
+
+  const handleDownload = (): void => {
+    console.log("download");
+    
+    const content = code;
+    const filename = "example.html";
+    const element = downloadRef.current;
+
+    if (element) {
+      element.href = URL.createObjectURL(
+        new Blob([content], { type: "text/html" })
+      );
+      element.download = filename;
+      element.click();
     }
   };
 
@@ -292,6 +312,7 @@ const Room = () => {
           >
             Run Code
           </button>
+
           {isClient && details.isAdmin && (
             <button
               type="button"
@@ -305,7 +326,20 @@ const Room = () => {
               Send Code
             </button>
           )}
+
+          <button
+            type="button"
+            className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
+            onClick={() => {
+              handleDownload();
+            }}
+          >
+            Download HTML
+          </button>
+          <a ref={downloadRef} style={{ display: 'none' }}></a>
+
         </div>
+
         <iframe className="h-80" title="output" ref={outputRef} />
       </div>
     </>
