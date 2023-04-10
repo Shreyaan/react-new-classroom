@@ -2,15 +2,19 @@ import { useState } from 'react';
 import Head from 'next/head';
 import io from 'socket.io-client';
 import { useRouter } from 'next/router';
+import { useLocalStorage } from 'usehooks-ts'
+
 
 const Home = () => {
   const [roomId, setRoomId] = useState('');
   const router = useRouter();
+  const [details, setDetails] = useLocalStorage('details', {name: '', room: '', isAdmin: false});
 
   const handleCreateRoom = () => {
     const socket = io('http://localhost:3001');
     socket.emit('createRoom', roomId);
     socket.on('roomCreated', (roomId) => {
+      setDetails({name: 'Admin', room: roomId, isAdmin: true});
       router.push(`/room/${roomId}`);
     });
   };
