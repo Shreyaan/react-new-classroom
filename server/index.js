@@ -59,7 +59,7 @@ io.on("connection", socket => {
     console.log(`Room ${roomId}: ${data}`)
 
     // Emit the data to all other members of the room
-    const membersSocketIds = rooms[roomId].membersSocketIds
+    const membersSocketIds = rooms[roomId]?.membersSocketIds
     membersSocketIds.forEach(memberSocketId => {
       if (memberSocketId !== socket.id) {
         io.to(memberSocketId).emit("dataReceived", data)
