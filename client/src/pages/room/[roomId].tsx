@@ -3,6 +3,7 @@ import Head from "next/head";
 import io, { Socket } from "socket.io-client";
 import { useRouter } from "next/router";
 import { useLocalStorage } from "usehooks-ts";
+import { useIsClient } from 'usehooks-ts'
 
 const Room = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -15,6 +16,9 @@ const Room = () => {
     room: "",
     isAdmin: false,
   });
+  const isClient = useIsClient()
+
+  
 
   // first useEffect hook for initializing socket connection
   useEffect(() => {
@@ -89,7 +93,7 @@ const Room = () => {
         <div className="mb-6 bg-red-100 p-4 text-red-900">{errorMessage}</div>
       )}
       <div className="mb-6">
-        {details.isAdmin && (
+        {isClient && details.isAdmin && (
           <button
             type="button"
             className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
@@ -102,7 +106,7 @@ const Room = () => {
       <div>
         {data && (
           <div className="mb-6 bg-gray-100 p-4">
-            <p>{data.time}</p>
+            <p>{data.message} at {data.time}</p>
           </div>
         )}
       </div>
