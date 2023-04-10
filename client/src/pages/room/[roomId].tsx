@@ -34,10 +34,6 @@ useEffect(() => {
       console.log("Data received: ", data);
     });
 
-    newSocket.on("dataReceived", (data) => {
-        console.log("Data received: ", data);
-        setData(data);
-      });
   
     return () => {
       newSocket.off("joinRoomError");
@@ -58,8 +54,15 @@ useEffect(() => {
   
 
   const handleSendData = () => {
+    // make varibale for date and time
+    var today = new Date();
+    var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date+' '+time;
+
     if (socket) {
-      socket.emit("sendData", roomId, { message: "Hello, world!" });
+      socket.emit("sendData", roomId, { message: "Hello, world!" , time: dateTime});
+      setData({ "message": "Hello, world!" , time: dateTime});
     }
   };
 
@@ -85,7 +88,7 @@ useEffect(() => {
       <div>
         {data && (
           <div className="mb-6 bg-gray-100 p-4">
-            <p>{JSON.stringify(data.message)}</p>
+            <p>{(data.time)}</p>
           </div>
         )}
       </div>
