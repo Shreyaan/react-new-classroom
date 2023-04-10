@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import io from 'socket.io-client';
 import { useRouter } from 'next/router';
-import { useLocalStorage } from 'usehooks-ts'
+import { useLocalStorage, useEffectOnce } from 'usehooks-ts'
 
 
 const Home = () => {
@@ -22,6 +22,12 @@ const Home = () => {
   const handleJoinRoom = () => {
     router.push(`/room/${roomId}`);
   };
+
+useEffectOnce(() => {
+    //ping server to keep it awake using fetch
+    fetch('https://reactnewclassroom.onrender.com');
+  });
+  
 
   return (
     <>
