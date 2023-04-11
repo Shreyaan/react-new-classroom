@@ -21,17 +21,16 @@ export function htmlGenerator(html: string, css: string, js: string) {
   </html>`;
 }
 
-
 export const handleRunCode = (
-    outputRef: React.RefObject<HTMLIFrameElement>,
-    code: string
-  ) => {
-    const iframe = outputRef.current;
-    if (!iframe) return;
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    console.log(iframeDoc);
+  outputRef: React.RefObject<HTMLIFrameElement>,
+  code: string
+) => {
+  const iframe = outputRef.current;
+  if (!iframe) return;
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+  console.log(iframeDoc);
 
-    iframeDoc?.open();
-    iframeDoc?.write(code);
-    iframeDoc?.close();
-  };
+  iframeDoc?.open();
+  iframeDoc?.write(code);
+  iframeDoc?.close();
+};
