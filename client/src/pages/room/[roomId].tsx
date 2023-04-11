@@ -184,7 +184,7 @@ const Room = () => {
       newSocket.disconnect();
       setSocket(null);
     };
-  }, [handleRunCode, roomId, setCss, setHtml, setJs]); // <-- dependency array should only contain roomId
+  }, [roomId]); // <-- dependency array should only contain roomId
 
   // second useEffect hook for handling state updates
   useEffect(() => {
