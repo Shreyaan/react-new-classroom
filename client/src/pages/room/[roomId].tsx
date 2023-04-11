@@ -4,7 +4,7 @@ import io, { type Socket } from "socket.io-client";
 import { useRouter } from "next/router";
 import Editor from "@monaco-editor/react";
 import { useLocalStorage, useEffectOnce, useIsClient } from "usehooks-ts";
-import { baseUrl } from "~/utils";
+import { baseUrl, htmlGenerator } from "~/utils";
 
 type socketData = {
   html: string;
@@ -14,6 +14,11 @@ type socketData = {
 }
 
 const Room = () => {
+  const isClient = useIsClient();
+  const router = useRouter();
+  const { roomId } = router.query;
+
+  //socket states
   const [socket, setSocket] = useState<Socket | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [data, setData] = useState<socketData>({
@@ -22,15 +27,13 @@ const Room = () => {
     js: "",
     dateTime: "",
   });
-  const router = useRouter();
-  const { roomId } = router.query;
+  
   const [details, setDetails] = useLocalStorage("details", {
     name: "",
     room: "",
     isAdmin: false,
   });
-  const isClient = useIsClient();
-
+  
   //editor states
 
   const [html, setHtml] = useLocalStorage("html", "<h1>Hello World</h1>");
@@ -41,28 +44,11 @@ const Room = () => {
     }`
   );
   const [js, setJs] = useLocalStorage("js", "//alert('Hello World')");
-  //editor code
-
+  
+  // editor display state
   const [language, setLanguage] = useState("html");
 
-  const [code, setCode] = useState(`<!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta http-equiv="X-UA-Compatible" content="IE=edge">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Document</title>
-      <style>
-          ${css}
-      </style>
-  </head>
-  <body>
-      ${html}
-      <script>
-          ${js}
-      </script>
-  </body>
-  </html>`);
+  const [code, setCode] = useState(htmlGenerator(html, css, js));
 
   const outputRef = useRef(null) as unknown as { current: HTMLIFrameElement };
 
@@ -97,26 +83,7 @@ const Room = () => {
   };
 
   useEffect(() => {
-    setCode(
-      `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-        <style>
-            ${css}
-        </style>
-    </head>
-    <body>
-        ${html}
-        <script>
-            ${js}
-        </script>
-    </body>
-    </html>`
-    );
+    setCode(htmlGenerator(html, css, js));
   }, [html, css, js, setCode]);
 
   useEffectOnce(() => {
@@ -138,6 +105,29 @@ const Room = () => {
       handleRunCode();
     }
   };
+
+   //download code
+
+   const downloadRef = useRef<HTMLAnchorElement>(null);
+
+   const handleDownload = (): void => {
+     console.log("download");
+ 
+     const content = code;
+     const filename = "example.html";
+     const element = downloadRef.current;
+ 
+     if (element) {
+       element.href = URL.createObjectURL(
+         new Blob([content], { type: "text/html" })
+       );
+       element.download = filename;
+       element.click();
+     }
+   };
+
+   
+   //socket functions
 
   // first useEffect hook for initializing socket connection
   useEffect(() => {
@@ -184,7 +174,7 @@ const Room = () => {
       newSocket.disconnect();
       setSocket(null);
     };
-  }, [roomId]); // <-- dependency array should only contain roomId
+  }, [roomId]);
 
   // second useEffect hook for handling state updates
   useEffect(() => {
@@ -194,7 +184,6 @@ const Room = () => {
   }, [socket]); // only called when socket value changes
 
   const handleSendData = () => {
-    // make varibale for date and time
     const today = new Date();
     const date = `${today.getFullYear()}-${
       today.getMonth() + 1
@@ -216,26 +205,7 @@ const Room = () => {
     }
   };
 
-  //download code
-
-  const downloadRef = useRef<HTMLAnchorElement>(null);
-
-  const handleDownload = (): void => {
-    console.log("download");
-
-    const content = code;
-    const filename = "example.html";
-    const element = downloadRef.current;
-
-    if (element) {
-      element.href = URL.createObjectURL(
-        new Blob([content], { type: "text/html" })
-      );
-      element.download = filename;
-      element.click();
-    }
-  };
-
+ 
   return (
     <>
       <Head>
@@ -245,26 +215,6 @@ const Room = () => {
       {errorMessage && (
         <div className="mb-6 bg-red-100 p-4 text-red-900">{errorMessage}</div>
       )}
-      {/* <div className="mb-6">
-        {isClient && details.isAdmin && (
-          <button
-            type="button"
-          className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
-            onClick={handleSendData}
-          >
-            Send Data
-          </button>
-        )}
-      </div>
-      <div>
-        {data && (
-          <div className="mb-6 bg-gray-100 p-4">
-            <p>
-              {data.message} at {data.time}
-            </p>
-          </div>
-        )}
-      </div> */}
       <div className="flex flex-col gap-4">
         <div className="h-90">
           <div className="tabs tabs-boxed">
