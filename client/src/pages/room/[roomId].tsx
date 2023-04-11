@@ -4,6 +4,7 @@ import io, { type Socket } from "socket.io-client";
 import { useRouter } from "next/router";
 import Editor from "@monaco-editor/react";
 import { useLocalStorage, useEffectOnce, useIsClient } from "usehooks-ts";
+import { baseUrl } from "~/utils";
 
 type socketData = {
   html: string;
@@ -140,7 +141,7 @@ const Room = () => {
 
   // first useEffect hook for initializing socket connection
   useEffect(() => {
-    const newSocket = io("https://reactnewclassroom.onrender.com");
+    const newSocket = io(baseUrl);
     setSocket(newSocket);
 
     newSocket.emit("joinRoom", roomId);
