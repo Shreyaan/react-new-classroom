@@ -101,7 +101,8 @@ const Home = () => {
             ) : (
               <div className="mx-auto w-full max-w-sm">
                 <p className="py-6">
-                  Server is offline. Please wait for few seconds.
+                  Server is offline. Please wait for few seconds. If its taking too long you can try local mode  <br /> <br />
+                  <a href="/code" className="mr-2 rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">local mode</a>
                 </p>
               </div>
             )}
