@@ -45,8 +45,6 @@ const Room = () => {
   );
   const [js, setJs] = useLocalStorage("js", "//alert('Hello World')");
 
-  // editor display state
-
   //socket functions
 
   // first useEffect hook for initializing socket connection

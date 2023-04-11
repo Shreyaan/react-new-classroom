@@ -1,9 +1,13 @@
-import { useEffect, useState, useRef, type SetStateAction, type Dispatch } from "react";
+import {
+  useEffect,
+  useState,
+  useRef,
+  type SetStateAction,
+  type Dispatch,
+} from "react";
 import Editor from "@monaco-editor/react";
 import { useEffectOnce, useIsClient } from "usehooks-ts";
-import { htmlGenerator } from "~/utils";
-
-
+import { handleRunCode, htmlGenerator } from "~/utils";
 
 export type SetValue<T> = Dispatch<SetStateAction<T>>;
 
@@ -32,7 +36,7 @@ export function EditorComponent({
 
   const [code, setCode] = useState(htmlGenerator(html, css, js));
 
-  const outputRef = useRef(null) as unknown as { current: HTMLIFrameElement };
+  const outputRef = useRef<HTMLIFrameElement>(null);
 
   // editor functions
   function handleEditorChange(
@@ -52,17 +56,6 @@ export function EditorComponent({
     }
   }
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const handleRunCode = () => {
-    const iframe = outputRef.current;
-    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-    console.log(iframeDoc);
-
-    iframeDoc?.open();
-    iframeDoc?.write(code);
-    iframeDoc?.close();
-  };
-
   useEffect(() => {
     setCode(htmlGenerator(html, css, js));
   }, [html, css, js, setCode]);
@@ -70,7 +63,7 @@ export function EditorComponent({
   useEffectOnce(() => {
     //sleep for 1 second
     setTimeout(() => {
-      handleRunCode();
+      handleRunCode(outputRef, code);
     }, 500);
   });
 
@@ -83,7 +76,7 @@ export function EditorComponent({
     const charCode = String.fromCharCode(event.which).toLowerCase();
     if ((event.ctrlKey || event.metaKey) && charCode === "s") {
       event.preventDefault();
-      handleRunCode();
+      handleRunCode(outputRef, code);
     }
   };
 
@@ -165,7 +158,9 @@ export function EditorComponent({
       <div className="flex gap-5">
         <button
           className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
-          onClick={handleRunCode}
+          onClick={() => {
+            handleRunCode(outputRef, code);
+          }}
         >
           Run Code
         </button>
@@ -175,7 +170,7 @@ export function EditorComponent({
             type="button"
             className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
             onClick={() => {
-              handleRunCode();
+              handleRunCode(outputRef, code);
 
               handleSendData?.();
             }}
@@ -194,6 +189,14 @@ export function EditorComponent({
           Download HTML
         </button>
         <a ref={downloadRef} style={{ display: "none" }}></a>
+
+        <a
+          href="/preview"
+          target="_blank"
+          className="rounded bg-blue-500 px-4 py-2 font-bold text-white"
+        >
+          Preview in new tab
+        </a>
       </div>
 
       <iframe className="h-80" title="output" ref={outputRef} />
