@@ -1,5 +1,5 @@
 import React from "react";
-import { EditorComponent } from "~/components/EditorComponent";
+import { EditorComponent } from "../components/EditorComponent";
 import { useLocalStorage } from "usehooks-ts";
 function Code() {
   const [html, setHtml] = useLocalStorage("html", "<h1>Hello World</h1>");
