@@ -1,19 +1,17 @@
-//next js page to redirect to index
-
-import React, {useEffect} from 'react'
+import React from 'react'
 import { useRouter } from 'next/router';
 
 
-function Room() {
+function Index() {
     const router = useRouter();
     
-    useEffect(() => {
-        router.push(`/`);
+    React.useEffect(() => {
+        void router.push(`/`);
 
-    }, [])
+    }, [router])
   return (
     <div>index</div>
   )
 }
 
-export default Room
+export default Index
