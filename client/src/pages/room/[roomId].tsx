@@ -1,14 +1,26 @@
-import { useEffect, useState, useRef, SetStateAction } from "react";
+import { useEffect, useState, useRef, type SetStateAction } from "react";
 import Head from "next/head";
-import io, { Socket } from "socket.io-client";
+import io, { type Socket } from "socket.io-client";
 import { useRouter } from "next/router";
 import Editor from "@monaco-editor/react";
 import { useLocalStorage, useEffectOnce, useIsClient } from "usehooks-ts";
 
+type socketData = {
+  html: string;
+  css: string;
+  js: string;
+  dateTime: string;
+}
+
 const Room = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<socketData>({
+    html: "",
+    css: "",
+    js: "",
+    dateTime: "",
+  });
   const router = useRouter();
   const { roomId } = router.query;
   const [details, setDetails] = useLocalStorage("details", {
@@ -17,6 +29,8 @@ const Room = () => {
     isAdmin: false,
   });
   const isClient = useIsClient();
+
+  //editor states
 
   const [html, setHtml] = useLocalStorage("html", "<h1>Hello World</h1>");
   const [css, setCss] = useLocalStorage(
@@ -51,9 +65,11 @@ const Room = () => {
 
   const outputRef = useRef(null) as unknown as { current: HTMLIFrameElement };
 
+  // editor functions
+
   function handleEditorChange(
     value: SetStateAction<string | undefined>,
-    event: any
+    _event: unknown
   ) {
     if (typeof value === "string") {
       if (language === "html") {
@@ -68,6 +84,7 @@ const Room = () => {
     }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleRunCode = () => {
     const iframe = outputRef.current;
     const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
@@ -111,8 +128,8 @@ const Room = () => {
   const handleKeyDown = (event: {
     preventDefault: () => void;
     which: number;
-    ctrlKey: any;
-    metaKey: any;
+    ctrlKey: unknown;
+    metaKey: unknown;
   }) => {
     const charCode = String.fromCharCode(event.which).toLowerCase();
     if ((event.ctrlKey || event.metaKey) && charCode === "s") {
@@ -128,7 +145,7 @@ const Room = () => {
 
     newSocket.emit("joinRoom", roomId);
 
-    newSocket.on("joinRoomError", (errorMessage) => {
+    newSocket.on("joinRoomError", (errorMessage: string) => {
       setErrorMessage(errorMessage);
     });
 
@@ -140,7 +157,7 @@ const Room = () => {
       console.log("A member has left the room");
     });
 
-    newSocket.on("dataReceived", (data) => {
+    newSocket.on("dataReceived", (data:socketData) => {
       if (data?.html) {
         setHtml(data.html);
         console.log(data.html);
@@ -166,7 +183,7 @@ const Room = () => {
       newSocket.disconnect();
       setSocket(null);
     };
-  }, [roomId]); // <-- dependency array should only contain roomId
+  }, [handleRunCode, roomId, setCss, setHtml, setJs]); // <-- dependency array should only contain roomId
 
   // second useEffect hook for handling state updates
   useEffect(() => {
@@ -177,37 +194,34 @@ const Room = () => {
 
   const handleSendData = () => {
     // make varibale for date and time
-    var today = new Date();
-    var date =
-      today.getFullYear() +
-      "-" +
-      (today.getMonth() + 1) +
-      "-" +
-      today.getDate();
-    var time =
-      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-    var dateTime = date + " " + time;
+    const today = new Date();
+    const date = `${today.getFullYear()}-${
+      today.getMonth() + 1
+    }-${today.getDate()}`;
+
+    const time = `${today.getHours()}:${today.getMinutes()}:${today.getSeconds()}`;
+
+    const dateTime = date + " " + time;
 
     if (socket) {
-      let sendData = {
-        message: "Hello, world!",
-        html: html,
+      const sendData = {
+        html,
         css,
         js,
-        dcsc: "dsc",
+        dateTime,
       };
       socket.emit("sendData", roomId, sendData);
       setData(sendData);
     }
   };
 
-  //download
+  //download code
 
   const downloadRef = useRef<HTMLAnchorElement>(null);
 
   const handleDownload = (): void => {
     console.log("download");
-    
+
     const content = code;
     const filename = "example.html";
     const element = downloadRef.current;
@@ -336,8 +350,7 @@ const Room = () => {
           >
             Download HTML
           </button>
-          <a ref={downloadRef} style={{ display: 'none' }}></a>
-
+          <a ref={downloadRef} style={{ display: "none" }}></a>
         </div>
 
         <iframe className="h-80" title="output" ref={outputRef} />
