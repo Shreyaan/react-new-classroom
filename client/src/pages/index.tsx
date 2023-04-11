@@ -101,7 +101,7 @@ const Home = () => {
             ) : (
               <div className="mx-auto w-full max-w-sm">
                 <p className="py-6">
-                  Server is offline. Please wait for new seconds.
+                  Server is offline. Please wait for few seconds.
                 </p>
               </div>
             )}
