@@ -1,16 +1,56 @@
-# react-new-classroom
+# NewClass
 
+NewClass is a collaborative online code editor and preview tool designed to make teaching and learning HTML, CSS, and JS more efficient. With NewClass, you can create a room for your students, write HTML, CSS, or JS, and using the "send code" button, send it to all the members of the room. Students can then test the code and make changes, helping them learn and understand web development concepts in a collaborative environment.
 
-Description: CodeShare Room is a web application that makes it easier to teach HTML, CSS, and JavaScript to a group of people. With CodeShare Room, you can create a room and invite others to join. Once in the room, everyone can write and share HTML, CSS, and JavaScript code with each other in real-time. This makes it easy for teachers to share their code with students and for students to collaborate with each other.
+## Technology Stack
 
-Features:
+NewClass has been built using the following technologies:
 
-Real-time collaboration: Multiple users can work on the same code simultaneously.
+- JavaScript (JS)
+- TypeScript (TS)
+- Next.js
+- Node.js
+- Express
+- Socket.IO
 
-Easy sharing: Send HTML, CSS, and JavaScript code to all members of the room with just one click.
+The frontend code of NewClass is located in the `client` folder, while the backend is located in the `server` folder.
 
-Customizable: Customize your workspace with different themes and settings.
+## Features
 
-User-friendly interface: Intuitive interface makes it easy for users to navigate and use the application.
+- Create a room and write HTML, CSS, or JS
+- Send code to all members of the room with the click of a button
+- Collaborative editing and testing of code
+- Frontend editor and website preview built-in
+- Local mode (write code in the editor and preview it)
+- Preview the website you made in a new tab
+- Download the HTML code
 
-If you're looking for an easy way to teach web development or collaborate on code with others, CodeShare Room is the perfect solution. Try it out today!
+## Usage
+
+To start using NewClass, simply visit the website - [newclass.vercel.app](https://newclass.vercel.app/) and create a room. Write HTML, CSS, or JS code and using the "send code" button, send it to all members of the room. Collaborate on the code and test it together with your students.
+
+## Installation
+
+- To install it via yarn, run the following commands:
+
+    git clone the repo, then
+    ```
+    cd client && yarn
+    cd ..
+    cd server && yarn
+    ```
+
+## Future Development
+
+Some of the features that will be included in future development are:
+
+- Head tag support
+- React and Vue support
+
+## Contributions
+
+Contributions are welcome to help improve NewClass.
+
+## Conclusion
+
+NewClass is a powerful tool for teachers and students of web development that allows for a collaborative and efficient learning experience. It's easy to use, and with its powerful features, it's sure to make teaching and learning HTML, CSS, and JS a breeze. Give it a try today!
